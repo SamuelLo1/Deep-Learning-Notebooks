@@ -59,11 +59,24 @@ class ConditionalDDPM(nn.Module):
         #                   before making it as the input of the denoising network.
         #   Outputs:
         #       noise_loss: loss computed by the self.loss_fn function.  
+        B = images.shape[0]
+        t_s = torch.randint(0, self.modelconfig.T, (B, 1), device=device)
 
+        # set the value of condition to the uncondition value with a prob of dropout
+        one_hot_conditions = F.one_hot(conditions, num_classes=self.modelconfig.num_classes).float()
+        mask_p = 0.1  
+        drop_mask = torch.rand(B) < mask_p
+        one_hot_conditions[drop_mask] = self.modelconfig.condition_mask_value  
+        scheduler_dict = self.scheduler(t_s)
 
-
-        pass
-
+        # sample noise in shape of image
+        noise = torch.randn_like(images)
+        # compute noisy images
+        noisy_images = scheduler_dict['sqrt_alpha_bar'] * images + scheduler_dict['sqrt_oneminus_alpha_bar'] * noise
+        # predict noise
+        predicted_noise = self.network(noisy_images, t_s, one_hot_conditions)
+        # compute loss
+        noise_loss = self.loss_fn(predicted_noise, noise)
 
 
         # ==================================================== #
