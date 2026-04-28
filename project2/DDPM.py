@@ -77,8 +77,13 @@ class ConditionalDDPM(nn.Module):
 
         # sample noise in shape of image
         noise = torch.randn_like(images)
+
+        # proper reshaping for broadcasting
+        sqrt_alpha_bar = scheduler_dict['sqrt_alpha_bar'].view(B, 1, 1, 1)
+        sqrt_oneminus_alpha_bar = scheduler_dict['sqrt_oneminus_alpha_bar'].view(B, 1, 1, 1)
+
         # compute noisy images
-        noisy_images = scheduler_dict['sqrt_alpha_bar'] * images + scheduler_dict['sqrt_oneminus_alpha_bar'] * noise
+        noisy_images = sqrt_alpha_bar * images + sqrt_oneminus_alpha_bar * noise
         # predict noise
         predicted_noise = self.network(noisy_images, t_s, one_hot_conditions)
         # compute loss
