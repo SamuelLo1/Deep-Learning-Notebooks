@@ -28,13 +28,19 @@ class ConditionalDDPM(nn.Module):
         #       one dictionary containing the variance schedule
         #       $\beta_t$ along with other potentially useful constants.       
 
-        beta_t = beta_1 + ((t_s + 1) / T) * (beta_T - beta_1)
+        betas = torch.linspace(beta_1, beta_T, T, device=t_s.device)
+        alphas = 1.0 - betas
+        alphas_bar = torch.cumprod(alphas, dim=0)
+        idx = t_s.long() - 1
+
+        beta_t = betas[idx].squeeze()
+        alpha_t = alphas[idx].squeeze()
+
         sqrt_beta_t = torch.sqrt(beta_t)
-        alpha_t = 1 - beta_t
-        oneover_sqrt_alpha = 1 / torch.sqrt(alpha_t)
-        alpha_t_bar = torch.cumprod(alpha_t, dim=0)
+        oneover_sqrt_alpha = 1.0 / torch.sqrt(alpha_t)
+        alpha_t_bar = alphas_bar[idx]
         sqrt_alpha_bar = torch.sqrt(alpha_t_bar)
-        sqrt_oneminus_alpha_bar = torch.sqrt(1 - alpha_t_bar)
+        sqrt_oneminus_alpha_bar = torch.sqrt(1.0 - alpha_t_bar)
 
         # ==================================================== #
         return {
