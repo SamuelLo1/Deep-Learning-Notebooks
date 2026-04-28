@@ -166,12 +166,19 @@ class ConditionalUnet(nn.Module):
         # ==================================================== #
 
         down0 = self.init_conv(x)
+        print("down0 shape: ", down0.shape)
         down1 = self.downblock1(self.fusion1(down0, temb2, cemb2))
+        print("down1 shape: ", down1.shape)
         down2 = self.downblock2(self.fusion2(down1, temb1, cemb1))
+        print("down2 shape: ", down2.shape)
         vec = self.to_vec(down2)
         up0 = self.upblock0(vec)
+        print("up0 shape: ", up0.shape)
         up1 = self.upblock1(up0, self.fusion3(down2, temb2, cemb2))
+        print("up1 shape: ", up1.shape)
         up2 = self.upblock2(up1, self.fusion4(down1, temb2, cemb2))
+        print("up2 shape: ", up2.shape)
         out = self.outblock(torch.cat((up2, down0), dim = 1))
+        print("out shape: ", out.shape)
 
         return out
