@@ -8,6 +8,10 @@
 
 - The reverse process:
 
+### CondDDPM
+
+- Same as DDPM but with condtionan labels being passed into the ResUNet. The labels are passed in as one-hot vectors and also there is a dropout variable omega to mask between contional predictions and non conditional predictions.
+
 ### ResUNet
 
 - ResUNet is a UNet architecture with residual connections.

@@ -106,10 +106,40 @@ class ConditionalDDPM(nn.Module):
         #       omega: conditional guidance weight.
         #   Outputs:
         #       generated_images  
+        B = conditions.shape[0]
+        one_hot_conditions = F.one_hot(conditions, num_classes=self.modelconfig.num_classes).float()
+        one_hot_conditions_uncond = torch.zeros_like(one_hot_conditions)
+        
+        # starting from pure noise and randomness and iteratively deenoise to get desired conditional
+        X_t = torch.randn(B, self.modelconfig.num_channels, self.modelconfig.input_dim, self.modelconfig.input_dim, device=conditions.device)
+        
+        # progress bar for sampling and iterations
+        for t in tqdm(range(T, 0, -1), desc='sampling'):
+            # get the scheduler dict for current time step
+            t_batch = torch.full((B, 1), t, device=conditions.device)
+            scheduler_dict = self.scheduler(t_batch)
 
+            # predict noise for both conditional and uncondtional inputs
+            predicted_noise_cond = self.network(X_t, t_batch, one_hot_conditions)
+            predicted_noise_uncond = self.network(X_t, t_batch, one_hot_conditions_uncond)
 
-        pass
+            # blend the cond and uncond predictions using omega
+            predicted_noise = predicted_noise_uncond + omega * (predicted_noise_cond - predicted_noise_uncond)
 
+            # compute the mean for the reverse process
+            alpha_t = scheduler_dict['alpha_t'].view(B, 1, 1, 1)
+            sqrt_one_minus_alpha_bar_t = scheduler_dict['sqrt_oneminus_alpha_bar'].view(B, 1, 1, 1)
+            sqrt_beta_t = scheduler_dict['sqrt_beta_t'].view(B, 1, 1, 1)
+            sqrt_one_over_alpha_t = scheduler_dict['oneover_sqrt_alpha'].view(B, 1, 1, 1)
+            
+            mean = sqrt_one_over_alpha_t * (X_t - ((1 - alpha_t) / sqrt_one_minus_alpha_bar_t) * predicted_noise)
+            
+            # 6. Add noise for t > 1, else just take mean
+            if t > 1:
+                z = torch.randn_like(X_t)
+                X_t = mean + sqrt_beta_t * z
+            else:
+                generated_images = mean
 
         # ==================================================== #
         generated_images = (X_t * 0.3081 + 0.1307).clamp(0,1)
