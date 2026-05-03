@@ -82,7 +82,7 @@ class ConditionalFM(nn.Module):
         #       omega: conditional guidance weight.
         #   Outputs:
         #       generated_images: samples from the model, shape (B,1,28,28)
-        
+
         B = conditions.shape[0]
         device = next(self.network.parameters()).device
         
@@ -92,33 +92,33 @@ class ConditionalFM(nn.Module):
         # Step 2: Integrate from t=0 to t=1 using learned velocity field
         num_steps = 20  # Number of integration steps (higher = better quality, slower)
         dt = 1.0 / num_steps
-        
-        for i in range(num_steps):
-            # Current time step
-            t = torch.full((B, 1), i * dt, device=device)
+        with torch.no_grad():
+            for i in range(num_steps):
+                # Current time step
+                t = torch.full((B, 1), i * dt, device=device)
+                
+                # Get conditional velocity prediction (with class info)
+                conditions_onehot = F.one_hot(
+                    conditions, 
+                    num_classes=self.modelconfig.num_classes
+                ).float()
+                v_cond = self.network(x, t, conditions_onehot)
+                
+                # Get unconditional velocity prediction (no class info)
+                uncond_onehot = torch.zeros(
+                    (B, self.modelconfig.num_classes), 
+                    device=device
+                )
+                v_uncond = self.network(x, t, uncond_onehot)
+                
+                # Classifier-free guidance blending
+                # v = v_uncond + omega * (v_cond - v_uncond)
+                # This blends toward conditional when omega > 1
+                v = v_uncond + omega * (v_cond - v_uncond)
+                
+                # Euler integration step: x_{t+dt} = x_t + v(x_t, c, t) * dt
+                x = x + v * dt
             
-            # Get conditional velocity prediction (with class info)
-            conditions_onehot = F.one_hot(
-                conditions, 
-                num_classes=self.modelconfig.num_classes
-            ).float()
-            v_cond = self.network(x, t, conditions_onehot)
-            
-            # Get unconditional velocity prediction (no class info)
-            uncond_onehot = torch.zeros(
-                (B, self.modelconfig.num_classes), 
-                device=device
-            )
-            v_uncond = self.network(x, t, uncond_onehot)
-            
-            # Classifier-free guidance blending
-            # v = v_uncond + omega * (v_cond - v_uncond)
-            # This blends toward conditional when omega > 1
-            v = v_uncond + omega * (v_cond - v_uncond)
-            
-            # Euler integration step: x_{t+dt} = x_t + v(x_t, c, t) * dt
-            x = x + v * dt
-        
         # ==================================================== #
         generated_images = (x * 0.3081 + 0.1307).clamp(0, 1)
         return generated_images
