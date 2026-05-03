@@ -70,7 +70,7 @@ class ConditionalDDPM(nn.Module):
 
         # set the value of condition to the uncondition value with a prob of dropout
         one_hot_conditions = F.one_hot(conditions, num_classes=self.modelconfig.num_classes).float()
-        mask_p = 0.1  
+        mask_p = self.modelconfig.mask_p  
         drop_mask = torch.rand(B) < mask_p
         one_hot_conditions[drop_mask] = self.modelconfig.condition_mask_value  
         scheduler_dict = self.scheduler(t_s)
