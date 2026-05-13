@@ -15,3 +15,7 @@
 ### ResUNet
 
 - ResUNet is a UNet architecture with residual connections.
+
+### Training Process:
+
+- For diffusion models the forward pass is responsible for adding noise to an image based on a random time step t and attempt to reverse the noise to get the original image for a specific time step t. Sampling is done for inference in between epochs to check the quality of the generated images.
