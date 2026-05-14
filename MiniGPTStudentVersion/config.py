@@ -6,7 +6,7 @@ from typing import Optional
 @dataclass
 class BigramConfig:
     context_length: int = 1
-    path_to_data: Path = Path("data")
+    path_to_data: Path = Path("/content/drive/MyDrive/MiniGPT/data")
     to_log: bool = True
     log_interval: int = 100
     save_path: Path = Path("models/bigram/")
@@ -24,7 +24,7 @@ class BigramConfig:
 
 @dataclass
 class MiniGPTConfig:
-    path_to_data: Path = Path("data")
+    path_to_data: Path = Path("/content/drive/MyDrive/MiniGPT/data")
     batch_size: int = 10
     num_layers: int = 1  # Num of Transformer layers
     vocab_size: int = 50257  # Tiktoken for GPT2 size
