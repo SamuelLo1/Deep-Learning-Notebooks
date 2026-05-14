@@ -206,6 +206,9 @@ class SingleHeadAttention(nn.Module):
         attn_weights = torch.softmax(attn_scores, dim=-1)
         attn_weights = self.dropout(attn_weights)
 
+        output = torch.matmul(attn_weights, values)
+        return output
+
         # ========= TODO : END ========= #
 
 
