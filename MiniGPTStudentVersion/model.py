@@ -162,11 +162,11 @@ class SingleHeadAttention(nn.Module):
 
         # ========= TODO : START ========= #
 
-        self.key = ...
-        self.query = ...
-        self.value = ...
-        self.dropout = ...
-        causal_mask = ...
+        self.key = nn.Linear(input_dim, self.output_key_query_dim, bias=False)
+        self.query = nn.Linear(input_dim, self.output_key_query_dim, bias=False)
+        self.value = nn.Linear(input_dim, self.output_value_dim, bias=False)
+        self.dropout = nn.Dropout(dropout)
+        causal_mask = torch.tril(torch.ones((max_len, max_len), dtype=torch.bool))  # (max_len, max_len)
 
         # ========= TODO : END ========= #
 
@@ -192,7 +192,19 @@ class SingleHeadAttention(nn.Module):
 
         # ========= TODO : START ========= #
 
-        raise NotImplementedError
+        keys = self.key(x)
+        queries = self.query(x)
+        values = self.value(x)
+
+        # compute the attention scores
+        attn_scores = torch.matmul(queries, torch.transpose(keys,-2,-1))
+        attn_scores = attn_scores / math.sqrt(self.output_key_query_dim)
+        # apply the causal mask
+        mask = self.causal_mask[: attn_scores.size(1), : attn_scores.size(2)]
+        attn_scores = attn_scores.masked_fill(~mask, float("-inf"))
+        # compute the attention weights
+        attn_weights = torch.softmax(attn_scores, dim=-1)
+        attn_weights = self.dropout(attn_weights)
 
         # ========= TODO : END ========= #
 
