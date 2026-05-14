@@ -8,7 +8,7 @@ def check_singleheadattention(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     key = "singleheadattention"
 
     ckpt = torch.load(checkpoint_file, map_location=device)
@@ -52,7 +52,7 @@ def check_multiheadattention(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     key = "multiheadattention"
 
     ckpt = torch.load(checkpoint_file, map_location=device)
