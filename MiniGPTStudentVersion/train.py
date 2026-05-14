@@ -82,10 +82,10 @@ def solver(model_name):
 
     ### ========= TODO : START ========= ###
     # Define the loss function
-    loss = None
+    loss = nn.CrossEntropyLoss()
 
     # Define the optimizer
-    optimizer = None
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
     ### ======== TODO : END ========= ###
 
     if config.scheduler:
@@ -101,10 +101,14 @@ def solver(model_name):
         train_loss = None # You can use this variable to store the training loss for the current iteration
         ### ======== TODO : START ========= ###
         # Do the forward pass, compute the loss, do the backward pass, and update the weights with the optimizer.
-        
-        
-        
-        
+        logits = model.forward(context.to(device))
+        loss = nn.CrossEntropyLoss()
+        train_loss = loss(logits.view(-1, logits.size(-1)), target.to(device).view(-1))
+        optimizer.zero_grad()
+        train_loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
         ### ======== TODO : END ========= ###
 
         if config.scheduler:
@@ -120,10 +124,16 @@ def solver(model_name):
             # Compute the evaluation loss on the eval dataset.
             # Hint:
             # - Remember to manually break out of the evaluation loop as the dataloader wraps around the dataset.
-            
-            
-            
-            
+            with torch.no_grad():
+                for j, (context, target) in enumerate(eval_dataloader):
+                    logits = model.forward(context.to(device))
+                    loss = nn.CrossEntropyLoss()
+                    eval_loss = loss(logits.view(-1, logits.size(-1)), target.to(device).view(-1))
+                    del context, target # Clear memory
+                    if j > 100: # Manually break out of the loop after 100 iterations to save time
+                        break
+
+                  
             ### ======== TODO : END ========= ###
             
             print(
