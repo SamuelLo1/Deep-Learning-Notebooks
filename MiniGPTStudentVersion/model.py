@@ -101,13 +101,13 @@ class BigramLanguageModel(nn.Module):
         ### ========= TODO : START ========= ###
 
         for _ in range(max_new_tokens):
-            logits = self.forward(context[-1:])  # Get the logits for the last token in the context
+            logits = self.forward(context[-1])  # Get the logits for the last token in the context
 
-            probs = torch.softmax(logits, dim=-1)  # Convert logits to probabilities
+            probs = torch.softmax(logits, dim=1)  # Convert logits to probabilities
 
             next_token = torch.multinomial(probs, num_samples=1)  # Sample the next token from the distribution
 
-            context = torch.cat((context, next_token), dim = 1) # append sampled token to the context
+            context = torch.cat((context, next_token), dim =1) # append sampled token to the context
 
         return context 
         ### ========= TODO : END ========= ###
