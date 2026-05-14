@@ -109,7 +109,7 @@ class BigramLanguageModel(nn.Module):
 
             context = torch.cat((context, next_token), dim =1) # append sampled token to the context
 
-        return context 
+        return context.squeeze(0)
         ### ========= TODO : END ========= ###
 
 
