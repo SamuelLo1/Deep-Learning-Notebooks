@@ -100,7 +100,9 @@ class BigramLanguageModel(nn.Module):
         """
 
         ### ========= TODO : START ========= ###
-
+        if context.dim() == 1:
+            context = context.unsqueeze(0)
+            
         for _ in range(max_new_tokens):
             logits = self.forward(context[:, -1:])  
             probs = torch.softmax(logits, dim=-1)
