@@ -33,9 +33,9 @@ class BigramLanguageModel(nn.Module):
         super().__init__()
         # ========= TODO : START ========= #
 
-        # self.embeddings = ...
-        # self.linear = ...
-        # self.dropout = ...
+        self.embeddings = nn.Embedding(config.vocab_size, config.embed_dim)
+        self.linear = nn.Linear(config.embed_dim, config.vocab_size)
+        self.dropout = nn.Dropout(config.dropout)
 
         # ========= TODO : END ========= #
 
@@ -56,8 +56,12 @@ class BigramLanguageModel(nn.Module):
 
         # ========= TODO : START ========= #
 
-        raise NotImplementedError
+        embeddings = self.embeddings(x)  # (batch_size, 1, embed_dim)
+        linear = self.linear(embeddings)  # (batch_size, 1, vocab_size)
+        linear = linear.squeeze(1)  # (batch_size, vocab_size)
+        output = self.dropout(linear)  # (batch_size, vocab_size)
 
+        return output
         # ========= TODO : END ========= #
 
     def _init_weights(self, module):
@@ -96,8 +100,16 @@ class BigramLanguageModel(nn.Module):
 
         ### ========= TODO : START ========= ###
 
-        raise NotImplementedError
+        for _ in range(max_new_tokens):
+            logits = self.forward(context[:, -1:])  # Get the logits for the last token in the context
 
+            probs = torch.softmax(logits, dim=-1)  # Convert logits to probabilities
+
+            next_token = torch.multinomial(probs, num_samples=1)  # Sample the next token from the distribution
+
+            context = torch.cat((context, next_token), dim = 1) # append sampled token to the context
+
+        return context 
         ### ========= TODO : END ========= ###
 
 

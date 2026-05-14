@@ -371,7 +371,7 @@ def check_bigram(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     # data_file = "./bigram_test_cases.npz"
     key = "bigram"
 
