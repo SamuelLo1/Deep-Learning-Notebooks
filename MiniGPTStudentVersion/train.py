@@ -85,7 +85,7 @@ def solver(model_name):
     loss = nn.CrossEntropyLoss()
 
     # Define the optimizer
-    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
     ### ======== TODO : END ========= ###
 
     if config.scheduler:
