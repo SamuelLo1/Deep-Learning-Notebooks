@@ -199,14 +199,26 @@ class SingleHeadAttention(nn.Module):
         # compute the attention scores
         attn_scores = torch.matmul(queries, torch.transpose(keys,-2,-1))
         attn_scores = attn_scores / math.sqrt(self.output_key_query_dim)
+        
+        # DEBUG: Check values before mask
+        print(f"  [SingleHead] attn_scores after scaling - shape: {attn_scores.shape}, has NaN: {torch.isnan(attn_scores).any()}")
+        
         # apply the causal mask
         mask = self.causal_mask[: attn_scores.size(1), : attn_scores.size(2)]
+        print(f"  [SingleHead] mask shape: {mask.shape}, mask dtype: {mask.dtype}")
+        print(f"  [SingleHead] mask sample (first 3x3): {mask[:3, :3]}")
+        
         attn_scores = attn_scores.masked_fill(~mask, float("-inf"))
+        print(f"  [SingleHead] attn_scores after mask - has NaN: {torch.isnan(attn_scores).any()}, has Inf: {torch.isinf(attn_scores).any()}")
+        
         # compute the attention weights
         attn_weights = torch.softmax(attn_scores, dim=-1)
+        print(f"  [SingleHead] attn_weights after softmax - has NaN: {torch.isnan(attn_weights).any()}")
+        
         attn_weights = self.dropout(attn_weights)
 
         output = torch.matmul(attn_weights, values)
+        print(f"  [SingleHead] final output - has NaN: {torch.isnan(output).any()}")
         return output
 
         # ========= TODO : END ========= #
