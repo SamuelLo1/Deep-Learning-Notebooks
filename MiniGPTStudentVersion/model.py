@@ -323,7 +323,7 @@ class FeedForwardLayer(nn.Module):
 
         ### ========= TODO : START ========= ###
 
-        layer1_out = self.f1(x)
+        layer1_out = self.fc1(x)
         layer1_act_out = self.activation(layer1_out)
         layer2_out = self.fc2(layer1_act_out)
         output = self.dropout(layer2_out)
