@@ -147,26 +147,8 @@ def check_multiheadattention(model, checkpoint_file, device="cpu"):
     old_output = torch.from_numpy(data[key + "_output"])
     old_input = old_input.to(device)
     old_output = old_output.to(device)
-    
-    print("\n=== DEBUG INFO ===")
-    print(f"Input shape: {old_input.shape}")
-    print(f"Expected output shape: {old_output.shape}")
-    
     check_output = model(old_input)
-    
-    print(f"Actual output shape: {check_output.shape}")
-    print(f"Shape match: {check_output.shape == old_output.shape}")
-    
-    # Check for NaN or Inf
-    print(f"Output contains NaN: {torch.isnan(check_output).any()}")
-    print(f"Output contains Inf: {torch.isinf(check_output).any()}")
-    
-    # Numerical differences
-    diff = (check_output - old_output).abs()
-    print(f"Max absolute difference: {diff.max().item():.2e}")
-    print(f"Mean absolute difference: {diff.mean().item():.2e}")
-    print("==================\n")
-    
+
     assert torch.allclose(check_output, old_output, atol=1e-5), "TEST CASE FAILED"
 
     return "TEST CASE PASSED!!!"
