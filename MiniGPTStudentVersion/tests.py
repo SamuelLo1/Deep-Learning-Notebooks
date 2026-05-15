@@ -158,7 +158,7 @@ def check_feedforward(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     key = "feedforward"
 
     ckpt = torch.load(checkpoint_file, map_location=device)
@@ -194,7 +194,7 @@ def check_layernorm(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     key = "layernorm"
 
     ckpt = torch.load(checkpoint_file, map_location=device)
@@ -220,7 +220,7 @@ def check_miniGPT(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     key = "minigpt"
 
     ckpt = torch.load(checkpoint_file, map_location=device)
@@ -241,7 +241,7 @@ def check_transformer(model, checkpoint_file, device="cpu"):
 
     model.to(device)
     model.eval()
-    data_file = "./test_cases.npz"
+    data_file = "/content/drive/MyDrive/MiniGPT/test_cases.npz"
     key = "transformer"
 
     ckpt = torch.load(checkpoint_file, map_location="cpu")

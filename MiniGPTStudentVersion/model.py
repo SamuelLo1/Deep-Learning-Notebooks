@@ -301,11 +301,10 @@ class FeedForwardLayer(nn.Module):
 
         # ========= TODO : START ========= #
 
-        self.fc1 = ...
-        self.activation = ...
-        self.fc2 = ...
-        self.fc2 = ...
-        self.dropout = ...
+        self.fc1 = nn.Linear(input_dim, feedforward_dim, bias=True)
+        self.activation = nn.GELU()
+        self.fc2 = nn.Linear(feedforward_dim, input_dim, bias=True)
+        self.dropout = nn.Dropout(dropout)
 
         # ========= TODO : END ========= #
 
@@ -324,7 +323,11 @@ class FeedForwardLayer(nn.Module):
 
         ### ========= TODO : START ========= ###
 
-        raise NotImplementedError
+        layer1_out = self.f1(x)
+        layer1_act_out = self.activation(layer1_out)
+        layer2_out = self.fc2(layer1_act_out)
+        output = self.dropout(layer2_out)
+        return output 
 
         ### ========= TODO : END ========= ###
 
