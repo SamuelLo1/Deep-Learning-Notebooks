@@ -208,7 +208,7 @@ class SingleHeadAttention(nn.Module):
         print(f"  [SingleHead] mask shape: {mask.shape}, mask dtype: {mask.dtype}")
         print(f"  [SingleHead] mask sample (first 3x3): {mask[:3, :3]}")
         
-        attn_scores = attn_scores.masked_fill(~mask, float("-inf"))
+        attn_scores = attn_scores.masked_fill(mask, float("-inf"))  # Removed ~mask negation
         print(f"  [SingleHead] attn_scores after mask - has NaN: {torch.isnan(attn_scores).any()}, has Inf: {torch.isinf(attn_scores).any()}")
         
         # compute the attention weights
