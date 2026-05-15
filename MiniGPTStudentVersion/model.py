@@ -372,7 +372,7 @@ class LayerNorm(nn.Module):
 
         # compute mean and variance 
         mean = torch.mean(input, dim=-1, keepdim=True)
-        var = torch.var(input, dim=-1, keepdim=True, unbiased=True)
+        var = torch.var(input, dim=-1, keepdim=True, unbiased=False)
 
         # ========= TODO : END ========= #
 
