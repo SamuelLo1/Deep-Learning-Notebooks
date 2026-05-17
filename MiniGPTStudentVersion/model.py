@@ -512,10 +512,14 @@ class MiniGPT(nn.Module):
         ### ========= TODO : START ========= ###
 
         batch_size, seq_len = x.size()
+        # Truncate to context_length to avoid exceeding positional embeddings
+        seq_len = min(seq_len, self.config.context_length)
+        x = x[:, :seq_len]  # Truncate input if needed
+        
         token_embeddings = self.vocab_embedding(x)  # (batch, seq_len, embed_dim)
-        positional_embeddings = self.positional_embedding(self.pos[:seq_len])  
-        positional_embeddings = positional_embeddings.unsqueeze(0)  
-        embeddings = token_embeddings + positional_embeddings  
+        positional_embeddings = self.positional_embedding(self.pos[:seq_len])  # (seq_len, embed_dim)
+        positional_embeddings = positional_embeddings.unsqueeze(0)  # (1, seq_len, embed_dim)
+        embeddings = token_embeddings + positional_embeddings  # Broadcasts correctly
         x = self.embed_dropout(embeddings)
         for layer in self.transformer_layers: 
             x = layer(x)
@@ -573,8 +577,10 @@ class MiniGPT(nn.Module):
         if context.dim() == 1:
             context = context.unsqueeze(0)
 
-        for _ in range(max_new_tokens): 
-            logits = self.forward(context)
+        for _ in range(max_new_tokens):
+            # Truncate context to last context_length tokens to avoid exceeding positional embeddings
+            context_truncated = context[:, -self.config.context_length:]
+            logits = self.forward(context_truncated)
             logits = logits[:, -1, :]
             probs = torch.softmax(logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
