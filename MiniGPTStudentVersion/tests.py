@@ -363,6 +363,9 @@ def check_transformer(model, checkpoint_file, device="cpu"):
     old_input = old_input.to(device)
     old_output = old_output.to(device)
     check_output = model(old_input)
+    print("Check output shape:", check_output.shape)
+    print("Old output shape:", old_output.shape)
+    print("max absolute difference:", torch.max(torch.abs(check_output - old_output)))
     assert torch.allclose(check_output, old_output, atol=1e-5), "TEST CASE FAILED"
 
     return "TEST CASE PASSED!!!"
