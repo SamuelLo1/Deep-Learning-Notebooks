@@ -406,10 +406,10 @@ class TransformerLayer(nn.Module):
 
         # ========= TODO : START ========= #
 
-        self.norm1 = ...
-        self.attention = ...
-        self.norm2 = ...
-        self.feedforward = ...
+        self.norm1 = LayerNorm(input_dim)
+        self.attention = MultiHeadAttention(input_dim, num_heads)
+        self.norm2 = LayerNorm(input_dim)
+        self.feedforward = FeedForwardLayer(input_dim, feedforward_dim)
 
         # ========= TODO : END ========= #
 
@@ -428,7 +428,10 @@ class TransformerLayer(nn.Module):
 
         # ========= TODO : START ========= #
 
-        raise NotImplementedError
+        x = self.norm1(x)
+        x = x + self.attention(x)
+        x = x + self.feedforward(self.norm2(x))
+        return x 
 
         # ========= TODO : END ========= #
 
