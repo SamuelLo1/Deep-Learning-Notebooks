@@ -480,7 +480,8 @@ class MiniGPT(nn.Module):
         self.head = nn.Linear(
             config.embed_dim, config.vocab_size
         )  # Language modelling head
-
+        
+        # essentially taking the dot product of the embedding weights and the head weights
         if config.weight_tie:
             self.head.weight = self.vocab_embedding.weight
 
@@ -510,7 +511,16 @@ class MiniGPT(nn.Module):
 
         ### ========= TODO : START ========= ###
 
-        raise NotImplementedError
+        batch_size, seq_len = x.size()
+        token_embeddings = self.vocab_embedding(x) 
+        positional_embeddings = self.positional_embedding(self.pos[:seq_len])
+        embeddings = token_embeddings + positional_embeddings
+        x = self.embed_dropout(embeddings)
+        for layer in self.transformer_layers: 
+            x = layer(x)
+        x = self.prehead_norm(x)
+        logits = self.head(x)
+        return logits
 
         ### ========= TODO : END ========= ###
 
@@ -559,6 +569,16 @@ class MiniGPT(nn.Module):
 
         ### ========= TODO : START ========= ###
 
-        raise NotImplementedError
+        if context.dim() == 1:
+            context = context.unsqueeze(0)
+
+        for _ in range(max_new_tokens): 
+            logits = self.forward(context)
+            logits = logits[:, -1, :]
+            probs = torch.softmax(logits, dim=-1)
+            next_token = torch.multinomial(probs, num_samples=1)
+            context = torch.cat((context, next_token), dim=1)
+
+        return context.squeeze(0)
 
         ### ========= TODO : END ========= ###
