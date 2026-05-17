@@ -428,8 +428,7 @@ class TransformerLayer(nn.Module):
 
         # ========= TODO : START ========= #
 
-        x = self.norm1(x)
-        x = x + self.attention(x)
+        x = x + self.attention(self.norm1(x))
         x = x + self.feedforward(self.norm2(x))
         return x 
 
