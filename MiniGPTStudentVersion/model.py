@@ -512,9 +512,10 @@ class MiniGPT(nn.Module):
         ### ========= TODO : START ========= ###
 
         batch_size, seq_len = x.size()
-        token_embeddings = self.vocab_embedding(x) 
-        positional_embeddings = self.positional_embedding(self.pos[:seq_len])
-        embeddings = token_embeddings + positional_embeddings
+        token_embeddings = self.vocab_embedding(x)  # (batch, seq_len, embed_dim)
+        positional_embeddings = self.positional_embedding(self.pos[:seq_len])  
+        positional_embeddings = positional_embeddings.unsqueeze(0)  
+        embeddings = token_embeddings + positional_embeddings  
         x = self.embed_dropout(embeddings)
         for layer in self.transformer_layers: 
             x = layer(x)
