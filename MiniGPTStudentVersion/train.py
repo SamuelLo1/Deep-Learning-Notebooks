@@ -82,7 +82,7 @@ def solver(model_name):
 
     ### ========= TODO : START ========= ###
     # Define the loss function
-    loss = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss()
 
     # Define the optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
@@ -102,12 +102,10 @@ def solver(model_name):
         ### ======== TODO : START ========= ###
         # Do the forward pass, compute the loss, do the backward pass, and update the weights with the optimizer.
         logits = model.forward(context.to(device))
-        loss = nn.CrossEntropyLoss()
-        train_loss = loss(logits.view(-1, logits.size(-1)), target.to(device).view(-1))
+        train_loss = loss_fn(logits.view(-1, logits.size(-1)), target.to(device).view(-1))
         optimizer.zero_grad()
         train_loss.backward()
         optimizer.step()
-        optimizer.zero_grad()
 
         ### ======== TODO : END ========= ###
 
@@ -127,14 +125,15 @@ def solver(model_name):
             with torch.no_grad():
                 for j, (context, target) in enumerate(eval_dataloader):
                     logits = model.forward(context.to(device))
-                    loss = nn.CrossEntropyLoss()
-                    eval_loss = loss(logits.view(-1, logits.size(-1)), target.to(device).view(-1))
+                    eval_loss = loss_fn(logits.view(-1, logits.size(-1)), target.to(device).view(-1))
                     del context, target # Clear memory
                     if j > 100: # Manually break out of the loop after 100 iterations to save time
                         break
 
                   
             ### ======== TODO : END ========= ###
+            
+            model.train()  # Switch back to training mode
             
             print(
                 f"Iteration {i}, Train Loss: {train_loss}",

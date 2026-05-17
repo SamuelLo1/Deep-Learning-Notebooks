@@ -166,7 +166,7 @@ class SingleHeadAttention(nn.Module):
         self.query = nn.Linear(input_dim, self.output_key_query_dim, bias=False)
         self.value = nn.Linear(input_dim, self.output_value_dim, bias=False)
         self.dropout = nn.Dropout(dropout)
-        causal_mask = torch.tril(torch.ones((max_len, max_len), dtype=torch.bool))  # (max_len, max_len)
+        causal_mask = torch.triu(torch.ones((max_len, max_len), dtype=torch.bool), diagonal=1)  # (max_len, max_len) - upper triangular (future positions)
 
         # ========= TODO : END ========= #
 
