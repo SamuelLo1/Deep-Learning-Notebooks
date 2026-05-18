@@ -519,6 +519,10 @@ class MiniGPT(nn.Module):
         token_embeddings = self.vocab_embedding(x)  # (batch, seq_len, embed_dim)
         positional_embeddings = self.positional_embedding(self.pos[:seq_len])  # (seq_len, embed_dim)
         positional_embeddings = positional_embeddings.unsqueeze(0)  # (1, seq_len, embed_dim)
+
+        print(f"Token embeddings shape: {token_embeddings.shape}")
+        print(f"Positional embeddings shape: {positional_embeddings.shape}")
+
         embeddings = token_embeddings + positional_embeddings  # Broadcasts correctly
         x = self.embed_dropout(embeddings)
         for layer in self.transformer_layers: 
@@ -578,9 +582,13 @@ class MiniGPT(nn.Module):
             context = context.unsqueeze(0)
 
         for _ in range(max_new_tokens):
+            print("Generating iterations")
+            print(f"Context shape: {context.shape}")  # Debugging line to check context shape
             # Truncate context to last context_length tokens to avoid exceeding positional embeddings
             context_truncated = context[:, -self.config.context_length:]
+            print(f"Truncated context shape: {context_truncated.shape}")  # Debugging line to check truncated context shape
             logits = self.forward(context_truncated)
+            print(f"Logits shape: {logits.shape}")  # Debugging line to check logits shape
             logits = logits[:, -1, :]
             probs = torch.softmax(logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
